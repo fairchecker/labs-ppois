@@ -19,7 +19,7 @@ DictionaryTree::DictionaryTree() = default;
  * двоеточия пропускаются.
  * @param filepath путь к файлу со словарём.
  */
-DictionaryTree::DictionaryTree(std::string filepath){
+DictionaryTree::DictionaryTree(const std::string& filepath){
     std::ifstream in;
     in.open(filepath);
     std::string line, key, content;
@@ -27,7 +27,7 @@ DictionaryTree::DictionaryTree(std::string filepath){
     if(in.is_open()){
         while (std::getline(in, line))
         {
-            pos = line.find(":");
+            pos = line.find(':');
             if (pos == std::string::npos) continue;
             key = line.substr(0, pos);
             content = line.substr(pos + 1);
@@ -198,7 +198,7 @@ DictionaryNode* DictionaryTree::GetWord(const std::string& key){
  * @param key ключ слова, значение которого заменяется.
  * @param new_content новое значение (перевод).
  */
-void DictionaryTree::SetWord(const std::string& key, const std::string& new_content){
+void DictionaryTree::SetWord(const std::string& key, const std::string& new_content){ // NOLINT(bugprone-easily-swappable-parameters)
     DictionaryNode* cur = root_.get();
     while(true){
         if(cur == nullptr) return;
