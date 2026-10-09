@@ -31,7 +31,7 @@ class DictionaryTree {
      * @brief Создаёт словарь, загружая слова из файла.
      * @param filepath путь к файлу со словарём.
      */
-    DictionaryTree(std::string filepath);
+    DictionaryTree(const std::string& filepath);
 
     /**
      * @brief Копирующий конструктор.
@@ -75,7 +75,7 @@ class DictionaryTree {
      * @param key ключ слова, значение которого заменяется.
      * @param new_content новое значение (перевод).
      */
-    void SetWord(const std::string& key, const std::string& new_content);
+    void SetWord(const std::string& key, const std::string& new_content); // NOLINT(bugprone-easily-swappable-parameters)
 
     /**
      * @brief Оператор добавления: эквивалентен AddWord.
