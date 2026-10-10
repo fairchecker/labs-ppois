@@ -31,7 +31,7 @@ ppois_enable_warnings(englorus)
 if(BUILD_TESTING)
     ppois_setup_googletest()
 
-    add_executable(test_dictionary tests/unit_tests.cpp)
+    add_executable(test_dictionary tests/unit_tests.cpp tests/cli_tests.cpp)
     target_link_libraries(test_dictionary PRIVATE englorus_lib)
     ppois_set_cxx_standard(test_dictionary)
     ppois_enable_warnings(test_dictionary)
@@ -40,5 +40,6 @@ if(BUILD_TESTING)
     ppois_enable_coverage(test_dictionary englorus_lib
         src/dictionary.cpp
         src/dictionary_node.cpp
+        src/main.cpp
     )
 endif()
