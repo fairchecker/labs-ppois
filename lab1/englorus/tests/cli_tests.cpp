@@ -39,13 +39,16 @@ struct CliResult {
     std::string err;
 };
 
-/// Подменяет std::cout и std::cerr на строки и возвращает потоки назад.
+/// Подменяет std::cin, std::cout и std::cerr и возвращает потоки назад.
 class StreamGuard {
     public:
-    StreamGuard(std::streambuf* out, std::streambuf* err)
-        : oldOut_(std::cout.rdbuf(out)), oldErr_(std::cerr.rdbuf(err)) {}
+    StreamGuard(std::streambuf* in, std::streambuf* out, std::streambuf* err)
+        : oldIn_(std::cin.rdbuf(in)),
+          oldOut_(std::cout.rdbuf(out)),
+          oldErr_(std::cerr.rdbuf(err)) {}
 
     ~StreamGuard() {
+        std::cin.rdbuf(oldIn_);
         std::cout.rdbuf(oldOut_);
         std::cerr.rdbuf(oldErr_);
     }
@@ -54,12 +57,14 @@ class StreamGuard {
     StreamGuard& operator=(const StreamGuard&) = delete;
 
     private:
+    std::streambuf* oldIn_;
     std::streambuf* oldOut_;
     std::streambuf* oldErr_;
 };
 
 /// Запускает CLI с аргументами (args[0] — имя программы) и собирает вывод.
-CliResult RunCli(const std::vector<std::string>& args) {
+/// @param input содержимое stdin для интерактивного режима.
+CliResult RunCli(const std::vector<std::string>& args, const std::string& input = "") {
     std::vector<std::string> storage = args;
     std::vector<char*> argv;
     argv.reserve(storage.size() + 1);
@@ -68,11 +73,12 @@ CliResult RunCli(const std::vector<std::string>& args) {
     }
     argv.push_back(nullptr);
 
+    std::istringstream in(input);
     std::ostringstream out;
     std::ostringstream err;
     CliResult result;
     {
-        StreamGuard guard(out.rdbuf(), err.rdbuf());
+        StreamGuard guard(in.rdbuf(), out.rdbuf(), err.rdbuf());
         result.code = englorus_cli_main(static_cast<int>(storage.size()), argv.data());
     }
     result.out = out.str();
@@ -109,15 +115,21 @@ class TempDictionaryFile {
 // ===========================================================================
 // Справка и ошибки использования
 // ===========================================================================
-TEST(CliUsage, NoArgumentsPrintsUsageToStderr) {
+TEST(CliUsage, NoArgumentsStartsInteractiveMode) {
+    const CliResult result = RunCli({"englorus"}, "exit\n");
+    EXPECT_EQ(0, result.code);
+    EXPECT_NE(std::string::npos, result.out.find("Interactive dictionary"));
+    EXPECT_TRUE(result.err.empty());
+}
+
+TEST(CliUsage, InteractiveModeEndsOnEof) {
     const CliResult result = RunCli({"englorus"});
-    EXPECT_EQ(2, result.code);
-    EXPECT_TRUE(result.out.empty());
-    EXPECT_NE(std::string::npos, result.err.find("Usage: englorus"));
+    EXPECT_EQ(0, result.code);
+    EXPECT_TRUE(result.err.empty());
 }
 
 TEST(CliUsage, HelpVariantsPrintUsageToStdout) {
-    for (const std::string& flag : {"help", "-h", "--help"}) {
+    for (const char* flag : {"help", "-h", "--help"}) {
         const CliResult result = RunCli({"englorus", flag});
         EXPECT_EQ(0, result.code) << flag;
         EXPECT_NE(std::string::npos, result.out.find("Usage: englorus")) << flag;
@@ -167,6 +179,56 @@ TEST(CliUsage, MissingArgumentsFail) {
         EXPECT_TRUE(result.out.empty()) << args[1];
         EXPECT_NE(std::string::npos, result.err.find("error: ")) << args[1];
     }
+}
+
+// ===========================================================================
+// Интерактивный режим
+// ===========================================================================
+TEST(CliInteractive, CommandsRunOnePerLine) {
+    const CliResult result = RunCli(
+        {"englorus"},
+        "add cat кот\nget cat\nset cat кошка\nget cat\ndel cat\nget cat\nexit\n");
+    EXPECT_EQ(0, result.code);
+    EXPECT_NE(std::string::npos, result.out.find("added cat"));
+    EXPECT_NE(std::string::npos, result.out.find("updated cat"));
+    EXPECT_NE(std::string::npos, result.out.find("кошка"));
+    EXPECT_NE(std::string::npos, result.out.find("deleted cat"));
+    EXPECT_NE(std::string::npos, result.err.find("error: word not found: cat"));
+}
+
+TEST(CliInteractive, ValueMayContainSpaces) {
+    const CliResult result = RunCli(
+        {"englorus"},
+        "add hello \"привет мир\"\nget hello\nadd bye пока до встречи\nget bye\nexit\n");
+    EXPECT_EQ(0, result.code);
+    EXPECT_NE(std::string::npos, result.out.find("привет мир\n"));
+    EXPECT_NE(std::string::npos, result.out.find("пока до встречи\n"));
+}
+
+TEST(CliInteractive, ErrorsDoNotStopTheSession) {
+    const CliResult result =
+        RunCli({"englorus"}, "add key\nget ghost\nadd cat кот\nget cat\nexit\n");
+    EXPECT_EQ(0, result.code);
+    EXPECT_NE(std::string::npos, result.err.find("error: add expects <key> <value>"));
+    EXPECT_NE(std::string::npos, result.err.find("error: word not found: ghost"));
+    EXPECT_NE(std::string::npos, result.out.find("added cat"));
+    EXPECT_NE(std::string::npos, result.out.find("кот"));
+}
+
+TEST(CliInteractive, HelpPrintsUsageAndContinues) {
+    const CliResult result = RunCli({"englorus"}, "help\nadd cat кот\nexit\n");
+    EXPECT_EQ(0, result.code);
+    EXPECT_NE(std::string::npos, result.out.find("Usage: englorus"));
+    EXPECT_NE(std::string::npos, result.out.find("added cat"));
+    EXPECT_TRUE(result.err.empty());
+}
+
+TEST(CliInteractive, LoadsDictionaryFileBeforeSession) {
+    const TempDictionaryFile file("cat:кошка\n");
+    const CliResult result = RunCli({"englorus", "-f", file.path()}, "get cat\nexit\n");
+    EXPECT_EQ(0, result.code);
+    EXPECT_NE(std::string::npos, result.out.find("кошка"));
+    EXPECT_TRUE(result.err.empty());
 }
 
 // ===========================================================================
