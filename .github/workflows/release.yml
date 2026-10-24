@@ -1,16 +1,16 @@
+
 name: Release
 
 on:
   push:
     tags:
-      - 'v*'
+      - "v*"
 
 permissions:
   contents: write
 
 jobs:
-  build:
-    name: Build release
+  build-and-release:
     runs-on: ubuntu-latest
 
     steps:
@@ -20,31 +20,37 @@ jobs:
       - name: Install dependencies
         run: |
           sudo apt-get update
-          sudo apt-get install -y cmake ninja-build clang
+          sudo apt-get install -y cmake g++ make zip
 
-      - name: Configure
+      - name: Build englorus
         run: |
-          cmake -S lab1/englorus \
-            -B build \
-            -G Ninja \
-            -DCMAKE_BUILD_TYPE=Release \
-            -DCMAKE_CXX_COMPILER=clang++
+          cmake -S lab1/englorus -B build/englorus \
+            -DCMAKE_BUILD_TYPE=Release
+          cmake --build build/englorus --parallel 2
 
-      - name: Build
+      - name: Build polynomial
         run: |
-          cmake --build build
+          cmake -S lab1/polynomial -B build/polynomial \
+            -DCMAKE_BUILD_TYPE=Release
+          cmake --build build/polynomial --parallel 2
 
-      - name: Package
+      - name: Package executables
         run: |
-          mkdir release
-          cp build/englorus release/
-          cp README.md release/
-          tar -czf "englorus-${GITHUB_REF_NAME}-linux.tar.gz" -C release .
+          mkdir -p dist/englorus dist/polynomial
 
-      - name: Create GitHub Release
-        env:
-          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-        run: |
-          gh release create "${GITHUB_REF_NAME}" \
-            --generate-notes \
-            "englorus-${GITHUB_REF_NAME}-linux.tar.gz"
+          find build/englorus -type f -executable \
+            -not -path '*/CMakeFiles/*' \
+            -exec cp --parents {} dist/englorus/ \;
+
+          find build/polynomial -type f -executable \
+            -not -path '*/CMakeFiles/*' \
+            -exec cp --parents {} dist/polynomial/ \;
+
+          cd dist
+          zip -r ../release-linux.zip .
+
+      - name: Publish GitHub Release
+        uses: softprops/action-gh-release@v2
+        with:
+          files: release-linux.zip
+          generate_release_notes: true
