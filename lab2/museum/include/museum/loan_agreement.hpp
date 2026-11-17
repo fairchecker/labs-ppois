@@ -9,6 +9,8 @@
 
 namespace museum {
 
+class Exhibit;
+
 /**
  * @class LoanAgreement
  * @brief Temporary transfer of an exhibit for a daily fee.
@@ -41,6 +43,13 @@ class LoanAgreement {
      * @throws LoanException when days is not positive.
      */
     void Extend(int days);
+
+    /**
+     * @brief Checks whether the agreement covers an exhibit.
+     * @param exhibit exhibit to compare.
+     * @return true when the exhibit identifier matches.
+     */
+    bool Covers(const Exhibit& exhibit) const;
 
     /// @brief Returns the exhibit identifier.
     const std::string& ExhibitId() const { return exhibitId_; }

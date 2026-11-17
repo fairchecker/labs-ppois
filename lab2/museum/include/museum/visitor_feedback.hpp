@@ -9,6 +9,8 @@
 
 namespace museum {
 
+class Visitor;
+
 /**
  * @class VisitorFeedback
  * @brief Review left by a visitor after a visit.
@@ -33,6 +35,13 @@ class VisitorFeedback {
      * @return true for ratings of one or two.
      */
     bool IsComplaint() const;
+
+    /**
+     * @brief Checks whether the feedback was written by a visitor.
+     * @param visitor visitor to compare.
+     * @return true when the visitor identifier matches.
+     */
+    bool WrittenBy(const Visitor& visitor) const;
 
     /// @brief Returns the visitor identifier.
     const std::string& VisitorId() const { return visitorId_; }

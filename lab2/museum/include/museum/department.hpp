@@ -10,6 +10,9 @@
 
 namespace museum {
 
+class Curator;
+class Exhibit;
+
 /**
  * @class Department
  * @brief Organizational unit led by a curator.
@@ -44,6 +47,20 @@ class Department {
      * @throws ExhibitNotFoundException when the exhibit is not assigned to the department.
      */
     void RequireExhibit(const std::string& exhibitId) const;
+
+    /**
+     * @brief Assigns a curator to the department.
+     * @param curator curator to assign.
+     * @return true when the curator changed.
+     */
+    bool AssignCurator(const Curator& curator);
+
+    /**
+     * @brief Adds an exhibit object to the department.
+     * @param exhibit exhibit to add.
+     * @return true when added.
+     */
+    bool AcceptExhibit(const Exhibit& exhibit);
 
     /// @brief Returns the number of assigned exhibits.
     std::size_t ExhibitCount() const { return exhibitIds_.size(); }

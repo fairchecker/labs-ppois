@@ -9,6 +9,8 @@
 
 namespace museum {
 
+class Researcher;
+
 /**
  * @class Publication
  * @brief Academic work authored by a museum researcher.
@@ -39,6 +41,13 @@ class Publication {
      * @return citations divided by the publication age in years.
      */
     double ImpactScore(int currentYear) const;
+
+    /**
+     * @brief Checks whether the publication was authored by a researcher.
+     * @param researcher researcher to compare.
+     * @return true when the author identifier matches.
+     */
+    bool AuthoredBy(const Researcher& researcher) const;
 
     /// @brief Returns the publication title.
     const std::string& Title() const { return title_; }

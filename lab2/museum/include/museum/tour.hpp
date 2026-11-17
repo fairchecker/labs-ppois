@@ -11,6 +11,8 @@
 
 namespace museum {
 
+class Guide;
+
 /**
  * @class Tour
  * @brief Scheduled walk through the museum led by a guide.
@@ -32,6 +34,13 @@ class Tour {
      * @throws BookingException when the tour is full or the visitor cannot pay.
      */
     bool Book(Visitor& visitor);
+
+    /**
+     * @brief Assigns a guide to the tour.
+     * @param guide guide to assign.
+     * @return true when the guide changed.
+     */
+    bool AssignGuide(const Guide& guide);
 
     /**
      * @brief Cancels one booked place.

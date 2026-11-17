@@ -18,6 +18,7 @@
 #include "museum/security_system.hpp"
 #include "museum/shop_item.hpp"
 #include "museum/visitor_feedback.hpp"
+#include "museum/visitor.hpp"
 
 namespace museum {
 
@@ -183,6 +184,10 @@ TEST(VisitorFeedbackTest, ClassifiesRatings) {
     EXPECT_EQ(negative.Rating(), 1);
     EXPECT_EQ(negative.Comment(), "Bad");
     EXPECT_EQ(negative.Day(), 3);
+    Visitor author("v3", "Author", 25, "full", 100.0);
+    Visitor other("v4", "Other", 25, "full", 100.0);
+    EXPECT_TRUE(negative.WrittenBy(author));
+    EXPECT_FALSE(negative.WrittenBy(other));
 }
 
 TEST(VisitorFeedbackTest, RejectsInvalidData) {

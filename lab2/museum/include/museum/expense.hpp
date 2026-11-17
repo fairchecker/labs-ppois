@@ -9,6 +9,8 @@
 
 namespace museum {
 
+class Budget;
+
 /**
  * @class Expense
  * @brief Money request that must be approved or rejected.
@@ -32,6 +34,13 @@ class Expense {
      * @throws InvalidBudgetException when the expense is not pending.
      */
     void Reject();
+
+    /**
+     * @brief Charges an approved expense to a budget.
+     * @param budget budget that pays the expense.
+     * @throws InvalidBudgetException when the expense was not approved.
+     */
+    void ChargeTo(Budget& budget) const;
 
     /// @brief Checks whether the expense is pending.
     bool IsPending() const { return status_ == "pending"; }

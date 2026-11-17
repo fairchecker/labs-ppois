@@ -9,6 +9,8 @@
 
 namespace museum {
 
+class Visitor;
+
 /**
  * @class Membership
  * @brief Paid membership that grants a discount and expires on a given day.
@@ -43,6 +45,13 @@ class Membership {
      * @throws InvalidMembershipException when days is not positive.
      */
     void Extend(int days);
+
+    /**
+     * @brief Checks whether the membership belongs to a visitor.
+     * @param visitor visitor to compare.
+     * @return true when the visitor identifier matches.
+     */
+    bool BelongsTo(const Visitor& visitor) const;
 
     /// @brief Returns the owner identifier.
     const std::string& VisitorId() const { return visitorId_; }

@@ -12,6 +12,8 @@
 
 namespace museum {
 
+class Guide;
+
 /**
  * @class VisitorGroup
  * @brief Group booking that may require a guide.
@@ -30,6 +32,13 @@ class VisitorGroup {
      * @return true when added, false when the group is full or the visitor is already a member.
      */
     bool AddMember(Visitor& visitor);
+
+    /**
+     * @brief Assigns a guide to the group.
+     * @param guide guide to assign.
+     * @return true when the guide changed.
+     */
+    bool AssignGuide(const Guide& guide);
 
     /**
      * @brief Checks whether the group reached its size.

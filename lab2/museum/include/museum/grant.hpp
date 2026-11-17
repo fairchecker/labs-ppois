@@ -9,6 +9,8 @@
 
 namespace museum {
 
+class Budget;
+
 /**
  * @class Grant
  * @brief Funding opportunity that can be awarded once.
@@ -39,6 +41,13 @@ class Grant {
      * @throws InvalidBudgetException when the grant was already awarded or has no value.
      */
     void Award();
+
+    /**
+     * @brief Deposits an awarded grant into a budget.
+     * @param budget budget that receives the funds.
+     * @throws InvalidBudgetException when the grant was not awarded.
+     */
+    void ApplyToBudget(Budget& budget) const;
 
     /// @brief Returns the grant title.
     const std::string& Title() const { return title_; }

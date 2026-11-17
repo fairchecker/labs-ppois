@@ -5,6 +5,7 @@
 
 #include <gtest/gtest.h>
 
+#include "museum/artifact.hpp"
 #include "museum/budget.hpp"
 #include "museum/donation.hpp"
 #include "museum/expense.hpp"
@@ -57,6 +58,10 @@ TEST(ExpenseTest, ApprovesOrRejectsPendingRequest) {
     EXPECT_EQ(approved.Category(), "travel");
     EXPECT_DOUBLE_EQ(approved.Amount(), 250.0);
     EXPECT_EQ(approved.Day(), 5);
+    Budget budget(1000.0, "travel");
+    approved.ChargeTo(budget);
+    EXPECT_DOUBLE_EQ(budget.Spent(), 250.0);
+    EXPECT_THROW(rejected.ChargeTo(budget), InvalidBudgetException);
 }
 
 TEST(ExpenseTest, RejectsInvalidData) {
@@ -162,6 +167,11 @@ TEST(GrantTest, AppliesAwardsAndExpires) {
     EXPECT_EQ(grant.Title(), "Digitization");
     EXPECT_DOUBLE_EQ(grant.Amount(), 5000.0);
     EXPECT_EQ(grant.DeadlineDay(), 30);
+    Budget budget(1000.0, "research");
+    Grant pending("Pending", 1000.0, 30);
+    EXPECT_THROW(pending.ApplyToBudget(budget), InvalidBudgetException);
+    grant.ApplyToBudget(budget);
+    EXPECT_DOUBLE_EQ(budget.Total(), 6000.0);
 }
 
 TEST(GrantTest, RejectsInvalidData) {
@@ -187,6 +197,10 @@ TEST(LoanAgreementTest, ComputesFeesAndExtends) {
     EXPECT_EQ(loan.Borrower(), "City Gallery");
     EXPECT_EQ(loan.StartDay(), 10);
     EXPECT_DOUBLE_EQ(loan.DailyFee(), 5.0);
+    Artifact matching("ex1", "Bowl", "Ancient", 50, 100.0, "bronze", 1.0, "Greece");
+    Artifact different("ex2", "Bowl", "Ancient", 50, 100.0, "bronze", 1.0, "Greece");
+    EXPECT_TRUE(loan.Covers(matching));
+    EXPECT_FALSE(loan.Covers(different));
 }
 
 TEST(LoanAgreementTest, RejectsInvalidData) {
@@ -211,6 +225,10 @@ TEST(InsurancePolicyTest, HandlesClaimsAndRenewal) {
     EXPECT_EQ(policy.ExhibitId(), "ex1");
     EXPECT_EQ(policy.Provider(), "SafeCo");
     EXPECT_DOUBLE_EQ(policy.Premium(), 200.0);
+    Artifact matching("ex1", "Bowl", "Ancient", 50, 100.0, "bronze", 1.0, "Greece");
+    Artifact different("ex2", "Bowl", "Ancient", 50, 100.0, "bronze", 1.0, "Greece");
+    EXPECT_TRUE(policy.Covers(matching));
+    EXPECT_FALSE(policy.Covers(different));
 }
 
 TEST(InsurancePolicyTest, RejectsInvalidData) {

@@ -5,6 +5,7 @@
 #include "museum/constants.hpp"
 #include "museum/donation.hpp"
 #include "museum/exceptions.hpp"
+#include "museum/exhibit.hpp"
 #include "museum/expense.hpp"
 #include "museum/grant.hpp"
 #include "museum/insurance_policy.hpp"
@@ -71,6 +72,13 @@ void Expense::Reject() {
         throw InvalidBudgetException("only pending expenses can be rejected");
     }
     status_ = "rejected";
+}
+
+void Expense::ChargeTo(Budget& budget) const {
+    if (status_ != "approved") {
+        throw InvalidBudgetException("only approved expenses can be charged");
+    }
+    budget.Spend(amount_);
 }
 
 Donation::Donation(std::string donorName, double amount, std::string purpose, bool anonymous)
@@ -198,6 +206,13 @@ void Grant::Award() {
     awarded_ = true;
 }
 
+void Grant::ApplyToBudget(Budget& budget) const {
+    if (!awarded_) {
+        throw InvalidBudgetException("only awarded grants can fund a budget");
+    }
+    budget.Allocate(amount_);
+}
+
 LoanAgreement::LoanAgreement(std::string exhibitId, std::string borrower, int startDay,
                              int endDay, double dailyFee)
     : exhibitId_(std::move(exhibitId)),
@@ -225,6 +240,10 @@ void LoanAgreement::Extend(int days) {
         throw LoanException("loan extension must be positive");
     }
     endDay_ += days;
+}
+
+bool LoanAgreement::Covers(const Exhibit& exhibit) const {
+    return exhibitId_ == exhibit.Id();
 }
 
 InsurancePolicy::InsurancePolicy(std::string exhibitId, std::string provider, double premium,
@@ -261,6 +280,10 @@ void InsurancePolicy::Renew(double extraCoverage) {
         throw InsuranceException("extra coverage must be positive");
     }
     coverage_ += extraCoverage;
+}
+
+bool InsurancePolicy::Covers(const Exhibit& exhibit) const {
+    return exhibitId_ == exhibit.Id();
 }
 
 }  // namespace museum

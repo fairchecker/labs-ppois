@@ -8,6 +8,7 @@
 #include <string>
 
 #include "museum/artifact.hpp"
+#include "museum/curator.hpp"
 #include "museum/department.hpp"
 #include "museum/exceptions.hpp"
 #include "museum/fossil.hpp"
@@ -247,9 +248,15 @@ TEST(DepartmentTest, ManagesExhibitCapacity) {
     EXPECT_FALSE(department.RemoveExhibit("ex1"));
     EXPECT_THROW(department.RequireExhibit("ex1"), ExhibitNotFoundException);
     department.RequireExhibit("ex2");
+    Curator curator("c2", "New Curator", 41, 1100.0, 2011, "Archaeology", "Art");
+    EXPECT_TRUE(department.AssignCurator(curator));
+    EXPECT_FALSE(department.AssignCurator(curator));
+    Artifact artifact = MakeArtifact();
+    EXPECT_TRUE(department.AcceptExhibit(artifact));
+    EXPECT_FALSE(department.AcceptExhibit(artifact));
     EXPECT_EQ(department.Name(), "Archaeology");
     EXPECT_EQ(department.Floor(), 1);
-    EXPECT_EQ(department.CuratorId(), "c1");
+    EXPECT_EQ(department.CuratorId(), "c2");
 }
 
 TEST(DepartmentTest, RejectsInvalidRecords) {

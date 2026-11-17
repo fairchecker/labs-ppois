@@ -5,9 +5,11 @@
 #include "museum/condition_report.hpp"
 #include "museum/constants.hpp"
 #include "museum/exceptions.hpp"
+#include "museum/exhibit.hpp"
 #include "museum/library.hpp"
 #include "museum/publication.hpp"
 #include "museum/research_project.hpp"
+#include "museum/researcher.hpp"
 #include "museum/restoration_lab.hpp"
 
 namespace museum {
@@ -99,6 +101,10 @@ double Publication::ImpactScore(int currentYear) const {
     return static_cast<double>(citations_) / static_cast<double>(age);
 }
 
+bool Publication::AuthoredBy(const Researcher& researcher) const {
+    return authorId_ == researcher.Id();
+}
+
 ConditionReport::ConditionReport(std::string exhibitId, int score, std::string notes, int day)
     : exhibitId_(std::move(exhibitId)), score_(score), notes_(std::move(notes)), day_(day) {
     if (exhibitId_.empty()) {
@@ -122,6 +128,10 @@ std::string ConditionReport::Recommendation() const {
         return "monitor condition";
     }
     return "stable";
+}
+
+bool ConditionReport::Concerns(const Exhibit& exhibit) const {
+    return exhibitId_ == exhibit.Id();
 }
 
 ResearchProject::ResearchProject(std::string title, std::string leadResearcherId, double budget)
@@ -156,6 +166,10 @@ void ResearchProject::Complete() {
         throw ResearchException("project is already complete");
     }
     completed_ = true;
+}
+
+bool ResearchProject::LedBy(const Researcher& researcher) const {
+    return leadResearcherId_ == researcher.Id();
 }
 
 RestorationTask::RestorationTask(std::string id, std::string exhibitId, std::string restorerId,

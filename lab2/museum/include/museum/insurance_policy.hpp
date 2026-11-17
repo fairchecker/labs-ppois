@@ -9,6 +9,8 @@
 
 namespace museum {
 
+class Exhibit;
+
 /**
  * @class InsurancePolicy
  * @brief Coverage contract with claim handling.
@@ -43,6 +45,13 @@ class InsurancePolicy {
      * @throws InsuranceException when the extra coverage is not positive.
      */
     void Renew(double extraCoverage);
+
+    /**
+     * @brief Checks whether the policy covers an exhibit.
+     * @param exhibit exhibit to compare.
+     * @return true when the exhibit identifier matches.
+     */
+    bool Covers(const Exhibit& exhibit) const;
 
     /// @brief Returns the exhibit identifier.
     const std::string& ExhibitId() const { return exhibitId_; }

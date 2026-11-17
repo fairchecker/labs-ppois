@@ -10,6 +10,8 @@
 
 namespace museum {
 
+class Exhibit;
+
 /**
  * @class Exhibition
  * @brief Curated display of exhibits available for a limited period.
@@ -30,6 +32,13 @@ class Exhibition {
      * @throws InvalidExhibitException when the identifier is empty.
      */
     bool AddExhibit(const std::string& exhibitId);
+
+    /**
+     * @brief Adds an exhibit object to the exhibition.
+     * @param exhibit exhibit to add.
+     * @return true when added, false when already present.
+     */
+    bool AddExhibit(const Exhibit& exhibit);
 
     /**
      * @brief Checks whether the exhibition is open on a day.

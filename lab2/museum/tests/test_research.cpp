@@ -5,12 +5,14 @@
 
 #include <gtest/gtest.h>
 
+#include "museum/artifact.hpp"
 #include "museum/book.hpp"
 #include "museum/condition_report.hpp"
 #include "museum/exceptions.hpp"
 #include "museum/library.hpp"
 #include "museum/publication.hpp"
 #include "museum/research_project.hpp"
+#include "museum/researcher.hpp"
 #include "museum/restoration_lab.hpp"
 #include "museum/restoration_material.hpp"
 #include "museum/restoration_task.hpp"
@@ -71,6 +73,10 @@ TEST(PublicationTest, TracksCitationsAndRecency) {
     EXPECT_EQ(publication.Title(), "Triassic Flora");
     EXPECT_EQ(publication.AuthorId(), "r1");
     EXPECT_EQ(publication.Year(), 2020);
+    Researcher author("r1", "Researcher", 45, 1000.0, 2015, "dep", "paleontology");
+    Researcher other("r2", "Other", 45, 1000.0, 2015, "dep", "paleontology");
+    EXPECT_TRUE(publication.AuthoredBy(author));
+    EXPECT_FALSE(publication.AuthoredBy(other));
 }
 
 TEST(PublicationTest, RejectsInvalidData) {
@@ -92,6 +98,10 @@ TEST(ConditionReportTest, ClassifiesCondition) {
     EXPECT_EQ(critical.Score(), 39);
     EXPECT_EQ(critical.Notes(), "cracks");
     EXPECT_EQ(critical.Day(), 5);
+    Artifact matching("ex1", "Bowl", "Ancient", 50, 100.0, "bronze", 1.0, "Greece");
+    Artifact different("ex2", "Bowl", "Ancient", 50, 100.0, "bronze", 1.0, "Greece");
+    EXPECT_TRUE(critical.Concerns(matching));
+    EXPECT_FALSE(critical.Concerns(different));
 }
 
 TEST(ConditionReportTest, RejectsInvalidData) {
@@ -116,6 +126,10 @@ TEST(ResearchProjectTest, RecordsFindingsAndPublications) {
     EXPECT_EQ(project.Title(), "Bronze Age trade");
     EXPECT_EQ(project.LeadResearcherId(), "r1");
     EXPECT_DOUBLE_EQ(project.Budget(), 5000.0);
+    Researcher lead("r1", "Lead", 45, 1000.0, 2015, "dep", "history");
+    Researcher other("r2", "Other", 45, 1000.0, 2015, "dep", "history");
+    EXPECT_TRUE(project.LedBy(lead));
+    EXPECT_FALSE(project.LedBy(other));
 }
 
 TEST(ResearchProjectTest, RejectsInvalidData) {

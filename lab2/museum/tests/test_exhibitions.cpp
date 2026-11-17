@@ -7,10 +7,12 @@
 
 #include <string>
 
+#include "museum/artifact.hpp"
 #include "museum/audio_guide.hpp"
 #include "museum/event.hpp"
 #include "museum/exceptions.hpp"
 #include "museum/exhibition.hpp"
+#include "museum/guide.hpp"
 #include "museum/ticket.hpp"
 #include "museum/ticket_office.hpp"
 #include "museum/tour.hpp"
@@ -38,7 +40,10 @@ TEST(ExhibitionTest, ManagesDatesAndExhibits) {
     EXPECT_DOUBLE_EQ(exhibition.ExpectedRevenue(10), 500.0);
     EXPECT_TRUE(exhibition.AddExhibit("a1"));
     EXPECT_FALSE(exhibition.AddExhibit("a1"));
-    EXPECT_EQ(exhibition.ExhibitCount(), 1U);
+    Artifact artifact("a2", "Bowl", "Ancient", 70, 100.0, "bronze", 1.0, "Greece");
+    EXPECT_TRUE(exhibition.AddExhibit(artifact));
+    EXPECT_FALSE(exhibition.AddExhibit(artifact));
+    EXPECT_EQ(exhibition.ExhibitCount(), 2U);
     EXPECT_EQ(exhibition.Id(), "ex1");
     EXPECT_EQ(exhibition.Title(), "Ancient Worlds");
     EXPECT_EQ(exhibition.StartDay(), 10);
@@ -68,6 +73,10 @@ TEST(TicketTest, DiscountsAndValidity) {
     EXPECT_EQ(ticket.VisitorId(), "v1");
     EXPECT_EQ(ticket.Type(), "full");
     EXPECT_EQ(ticket.Day(), 5);
+    Visitor owner("v1", "Owner", 25, "full", 100.0);
+    Visitor stranger("v2", "Stranger", 25, "full", 100.0);
+    EXPECT_TRUE(ticket.BelongsTo(owner));
+    EXPECT_FALSE(ticket.BelongsTo(stranger));
     EXPECT_THROW(ticket.ApplyDiscount(-1.0), InvalidTicketException);
     EXPECT_THROW(ticket.ApplyDiscount(101.0), InvalidTicketException);
 }
@@ -155,6 +164,10 @@ TEST(TourTest, BooksAndCancelsPlaces) {
     EXPECT_EQ(tour.GuideId(), "g1");
     EXPECT_EQ(tour.RouteName(), "Highlights");
     EXPECT_EQ(tour.MaxVisitors(), 2);
+    Guide replacement("g2", "New Guide", 30, 900.0, 2020, "Education", {"English"}, 4.0);
+    EXPECT_TRUE(tour.AssignGuide(replacement));
+    EXPECT_FALSE(tour.AssignGuide(replacement));
+    EXPECT_EQ(tour.GuideId(), "g2");
 }
 
 TEST(TourTest, RejectsUnaffordableVisitorAndInvalidRecord) {
@@ -213,6 +226,11 @@ TEST(VisitorGroupTest, AddsMembersUpToSize) {
 
     VisitorGroup guided("g2", "School 6", 3, "guide-1");
     EXPECT_FALSE(guided.NeedsGuide());
+    Guide guide("g3", "Guide", 30, 800.0, 2020, "Education", {"English"}, 4.0);
+    VisitorGroup unguided("g3", "School 7", 3, "");
+    EXPECT_TRUE(unguided.AssignGuide(guide));
+    EXPECT_FALSE(unguided.AssignGuide(guide));
+    EXPECT_FALSE(unguided.NeedsGuide());
 }
 
 TEST(VisitorGroupTest, RejectsInvalidData) {

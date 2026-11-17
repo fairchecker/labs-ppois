@@ -12,6 +12,8 @@
 
 namespace museum {
 
+class Researcher;
+
 /**
  * @class ResearchProject
  * @brief Investigation led by a researcher and closed when complete.
@@ -46,6 +48,13 @@ class ResearchProject {
 
     /// @brief Checks whether the project has funding.
     bool IsFunded() const { return budget_ > 0.0; }
+
+    /**
+     * @brief Checks whether the project is led by a researcher.
+     * @param researcher researcher to compare.
+     * @return true when the lead identifier matches.
+     */
+    bool LedBy(const Researcher& researcher) const;
 
     /// @brief Checks whether the project is complete.
     bool IsComplete() const { return completed_; }

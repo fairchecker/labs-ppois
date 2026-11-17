@@ -9,6 +9,8 @@
 
 namespace museum {
 
+class Exhibit;
+
 /**
  * @class ConditionReport
  * @brief Expert assessment with a restoration recommendation.
@@ -33,6 +35,13 @@ class ConditionReport {
      * @return "immediate restoration", "monitor condition" or "stable".
      */
     std::string Recommendation() const;
+
+    /**
+     * @brief Checks whether the report concerns an exhibit.
+     * @param exhibit exhibit to compare.
+     * @return true when the exhibit identifier matches.
+     */
+    bool Concerns(const Exhibit& exhibit) const;
 
     /// @brief Returns the exhibit identifier.
     const std::string& ExhibitId() const { return exhibitId_; }

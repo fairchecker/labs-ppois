@@ -182,6 +182,10 @@ TEST(MembershipTest, ActivePeriodAndLateDay) {
     EXPECT_TRUE(membership.IsActive(30));
     EXPECT_FALSE(membership.IsActive(31));
     EXPECT_EQ(membership.VisitorId(), "v1");
+    Visitor owner("v1", "Owner", 25, "full", 100.0);
+    Visitor stranger("v2", "Stranger", 25, "full", 100.0);
+    EXPECT_TRUE(membership.BelongsTo(owner));
+    EXPECT_FALSE(membership.BelongsTo(stranger));
 }
 
 TEST(MembershipTest, DiscountDependsOnLevel) {

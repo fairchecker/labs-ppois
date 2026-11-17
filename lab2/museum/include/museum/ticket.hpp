@@ -9,6 +9,8 @@
 
 namespace museum {
 
+class Visitor;
+
 /**
  * @class Ticket
  * @brief Single admission ticket sold by the museum.
@@ -42,6 +44,13 @@ class Ticket {
      * @return false for VIP tickets.
      */
     bool IsRefundable() const;
+
+    /**
+     * @brief Checks whether the ticket belongs to a visitor.
+     * @param visitor visitor to compare.
+     * @return true when the visitor identifier matches.
+     */
+    bool BelongsTo(const Visitor& visitor) const;
 
     /// @brief Returns the ticket identifier.
     const std::string& Id() const { return id_; }

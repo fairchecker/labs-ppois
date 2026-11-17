@@ -13,6 +13,7 @@
 #include "museum/parking_lot.hpp"
 #include "museum/security_camera.hpp"
 #include "museum/security_system.hpp"
+#include "museum/visitor.hpp"
 #include "museum/visitor_feedback.hpp"
 
 namespace museum {
@@ -247,6 +248,10 @@ VisitorFeedback::VisitorFeedback(std::string visitorId, int rating, std::string 
 bool VisitorFeedback::IsPositive() const { return rating_ >= 4; }
 
 bool VisitorFeedback::IsComplaint() const { return rating_ <= 2; }
+
+bool VisitorFeedback::WrittenBy(const Visitor& visitor) const {
+    return visitorId_ == visitor.Id();
+}
 
 FeedbackBoard::FeedbackBoard(int maxSize) : maxSize_(maxSize) {
     if (maxSize_ <= 0) {

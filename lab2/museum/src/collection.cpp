@@ -3,7 +3,9 @@
 #include <utility>
 
 #include "museum/constants.hpp"
+#include "museum/curator.hpp"
 #include "museum/exceptions.hpp"
+#include "museum/exhibit.hpp"
 #include "museum/showcase.hpp"
 #include "museum/storage_room.hpp"
 
@@ -70,6 +72,16 @@ void Department::RequireExhibit(const std::string& exhibitId) const {
         throw ExhibitNotFoundException("exhibit not assigned to department: " + exhibitId);
     }
 }
+
+bool Department::AssignCurator(const Curator& curator) {
+    if (curatorId_ == curator.Id()) {
+        return false;
+    }
+    curatorId_ = curator.Id();
+    return true;
+}
+
+bool Department::AcceptExhibit(const Exhibit& exhibit) { return AddExhibit(exhibit.Id()); }
 
 bool Department::IsFull() const {
     return exhibitIds_.size() >= static_cast<std::size_t>(capacity_);

@@ -6,6 +6,7 @@
 #include "museum/audio_guide.hpp"
 #include "museum/constants.hpp"
 #include "museum/exceptions.hpp"
+#include "museum/guide.hpp"
 #include "museum/tour_booking.hpp"
 #include "museum/visitor_group.hpp"
 
@@ -42,6 +43,14 @@ bool Tour::Cancel() {
         return false;
     }
     --bookedVisitors_;
+    return true;
+}
+
+bool Tour::AssignGuide(const Guide& guide) {
+    if (guideId_ == guide.Id()) {
+        return false;
+    }
+    guideId_ = guide.Id();
     return true;
 }
 
@@ -116,6 +125,14 @@ bool VisitorGroup::IsFull() const {
 }
 
 bool VisitorGroup::NeedsGuide() const { return guideId_.empty(); }
+
+bool VisitorGroup::AssignGuide(const Guide& guide) {
+    if (guideId_ == guide.Id()) {
+        return false;
+    }
+    guideId_ = guide.Id();
+    return true;
+}
 
 AudioGuide::AudioGuide(std::string id, std::string language, int batteryPercent)
     : id_(std::move(id)), language_(std::move(language)), batteryPercent_(batteryPercent) {

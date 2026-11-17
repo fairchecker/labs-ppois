@@ -84,4 +84,6 @@ void Membership::Extend(int days) {
     validUntilDay_ += days;
 }
 
+bool Membership::BelongsTo(const Visitor& visitor) const { return visitorId_ == visitor.Id(); }
+
 }  // namespace museum

@@ -5,6 +5,7 @@
 
 #include "museum/event.hpp"
 #include "museum/exceptions.hpp"
+#include "museum/exhibit.hpp"
 #include "museum/ticket_office.hpp"
 
 namespace museum {
@@ -37,6 +38,8 @@ bool Exhibition::AddExhibit(const std::string& exhibitId) {
     exhibitIds_.push_back(exhibitId);
     return true;
 }
+
+bool Exhibition::AddExhibit(const Exhibit& exhibit) { return AddExhibit(exhibit.Id()); }
 
 bool Exhibition::IsActiveOn(int day) const { return day >= startDay_ && day <= endDay_; }
 
@@ -74,6 +77,8 @@ double Ticket::ApplyDiscount(double percent) {
 bool Ticket::IsValidOn(int day) const { return day_ == day; }
 
 bool Ticket::IsRefundable() const { return type_ != "vip"; }
+
+bool Ticket::BelongsTo(const Visitor& visitor) const { return visitorId_ == visitor.Id(); }
 
 TicketOffice::TicketOffice(int dailyCapacity) : dailyCapacity_(dailyCapacity) {
     if (dailyCapacity_ <= 0) {
