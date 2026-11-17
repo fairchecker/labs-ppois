@@ -71,6 +71,10 @@ inline constexpr double kCaratPremium = 1000.0;
 inline constexpr int kRareManuscriptYear = 1600;
 /// Page count above which a manuscript is considered rare.
 inline constexpr int kRareManuscriptPages = 500;
+/// Minimum battery percentage required to rent an audio guide.
+inline constexpr int kMinAudioGuideBattery = 10;
+/// Minutes of charging that restore one battery percent.
+inline constexpr int kMinutesPerBatteryPercent = 2;
 /// Hours in a standard day.
 inline constexpr int kHoursPerDay = 24;
 /// Days in a standard year.
