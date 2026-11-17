@@ -17,6 +17,8 @@ add_library(museum_lib STATIC
     src/person.cpp
     src/roles.cpp
     src/visitor.cpp
+    src/exhibits.cpp
+    src/collection.cpp
 )
 add_library(ppois::museum ALIAS museum_lib)
 
@@ -34,6 +36,7 @@ if(BUILD_TESTING)
 
     add_executable(test_museum
         tests/test_people.cpp
+        tests/test_collection.cpp
     )
     target_link_libraries(test_museum PRIVATE museum_lib)
     ppois_set_cxx_standard(test_museum)
@@ -44,5 +47,7 @@ if(BUILD_TESTING)
         src/person.cpp
         src/roles.cpp
         src/visitor.cpp
+        src/exhibits.cpp
+        src/collection.cpp
     )
 endif()

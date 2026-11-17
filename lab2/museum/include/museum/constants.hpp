@@ -61,6 +61,16 @@ inline constexpr double kStudentDiscount = 0.30;
 inline constexpr double kSeniorDiscount = 0.20;
 /// Earliest plausible hire year for an employee record.
 inline constexpr int kEarliestHireYear = 1900;
+/// Area in square centimetres above which a painting is considered large.
+inline constexpr double kLargePaintingAreaCm2 = 20000.0;
+/// Age in years after which an object is considered antique.
+inline constexpr int kAntiqueYears = 100;
+/// Value premium added per gemstone carat during appraisal.
+inline constexpr double kCaratPremium = 1000.0;
+/// Publication year before which a manuscript is considered rare.
+inline constexpr int kRareManuscriptYear = 1600;
+/// Page count above which a manuscript is considered rare.
+inline constexpr int kRareManuscriptPages = 500;
 /// Hours in a standard day.
 inline constexpr int kHoursPerDay = 24;
 /// Days in a standard year.

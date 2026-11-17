@@ -52,6 +52,12 @@ class DepartmentNotFoundException : public MuseumException {
     explicit DepartmentNotFoundException(const std::string& message) : MuseumException(message) {}
 };
 
+/// Thrown when a department record is malformed.
+class InvalidDepartmentException : public MuseumException {
+    public:
+    explicit InvalidDepartmentException(const std::string& message) : MuseumException(message) {}
+};
+
 /// Thrown when a restoration workflow is violated.
 class RestorationException : public MuseumException {
     public:
