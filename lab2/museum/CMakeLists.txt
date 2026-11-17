@@ -19,6 +19,8 @@ add_library(museum_lib STATIC
     src/visitor.cpp
     src/exhibits.cpp
     src/collection.cpp
+    src/tickets.cpp
+    src/tours.cpp
     src/finance.cpp
     src/research_restoration.cpp
     src/security_facilities.cpp
@@ -42,6 +44,7 @@ if(BUILD_TESTING)
     add_executable(test_museum
         tests/test_people.cpp
         tests/test_collection.cpp
+        tests/test_exhibitions.cpp
         tests/test_finance.cpp
         tests/test_research.cpp
         tests/test_security.cpp
@@ -59,6 +62,8 @@ if(BUILD_TESTING)
         src/visitor.cpp
         src/exhibits.cpp
         src/collection.cpp
+        src/tickets.cpp
+        src/tours.cpp
         src/finance.cpp
         src/research_restoration.cpp
         src/security_facilities.cpp
