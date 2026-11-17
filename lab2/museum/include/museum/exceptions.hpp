@@ -154,4 +154,16 @@ class ResearchException : public MuseumException {
     explicit ResearchException(const std::string& message) : MuseumException(message) {}
 };
 
+/// Thrown when visitor feedback cannot be processed.
+class FeedbackException : public MuseumException {
+    public:
+    explicit FeedbackException(const std::string& message) : MuseumException(message) {}
+};
+
+/// Thrown when a museum facility operation is invalid.
+class FacilityException : public MuseumException {
+    public:
+    explicit FacilityException(const std::string& message) : MuseumException(message) {}
+};
+
 }  // namespace museum

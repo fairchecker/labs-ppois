@@ -77,6 +77,16 @@ inline constexpr int kMinAudioGuideBattery = 10;
 inline constexpr int kMinutesPerBatteryPercent = 2;
 /// Years within which a publication is considered recent.
 inline constexpr int kRecentPublicationYears = 5;
+/// Lowest severity of a security incident.
+inline constexpr int kMinIncidentSeverity = 1;
+/// Highest severity of a security incident.
+inline constexpr int kMaxIncidentSeverity = 5;
+/// Severity at which an incident is considered critical.
+inline constexpr int kCriticalIncidentSeverity = 4;
+/// Resolution in pixels above which a camera is high definition.
+inline constexpr int kHighResolutionP = 1080;
+/// Highest access level granted to a museum card.
+inline constexpr int kMaxAccessLevel = 3;
 /// Hours in a standard day.
 inline constexpr int kHoursPerDay = 24;
 /// Days in a standard year.
