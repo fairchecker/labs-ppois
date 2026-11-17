@@ -75,6 +75,8 @@ inline constexpr int kRareManuscriptPages = 500;
 inline constexpr int kMinAudioGuideBattery = 10;
 /// Minutes of charging that restore one battery percent.
 inline constexpr int kMinutesPerBatteryPercent = 2;
+/// Years within which a publication is considered recent.
+inline constexpr int kRecentPublicationYears = 5;
 /// Hours in a standard day.
 inline constexpr int kHoursPerDay = 24;
 /// Days in a standard year.

@@ -20,6 +20,7 @@ add_library(museum_lib STATIC
     src/exhibits.cpp
     src/collection.cpp
     src/finance.cpp
+    src/research_restoration.cpp
 )
 add_library(ppois::museum ALIAS museum_lib)
 
@@ -39,6 +40,7 @@ if(BUILD_TESTING)
         tests/test_people.cpp
         tests/test_collection.cpp
         tests/test_finance.cpp
+        tests/test_research.cpp
     )
     target_link_libraries(test_museum PRIVATE museum_lib)
     ppois_set_cxx_standard(test_museum)
@@ -52,5 +54,6 @@ if(BUILD_TESTING)
         src/exhibits.cpp
         src/collection.cpp
         src/finance.cpp
+        src/research_restoration.cpp
     )
 endif()

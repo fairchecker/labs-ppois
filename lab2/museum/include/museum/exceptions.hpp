@@ -142,4 +142,16 @@ class InsuranceException : public MuseumException {
     explicit InsuranceException(const std::string& message) : MuseumException(message) {}
 };
 
+/// Thrown when a library operation cannot be completed.
+class LibraryException : public MuseumException {
+    public:
+    explicit LibraryException(const std::string& message) : MuseumException(message) {}
+};
+
+/// Thrown when a research workflow is violated.
+class ResearchException : public MuseumException {
+    public:
+    explicit ResearchException(const std::string& message) : MuseumException(message) {}
+};
+
 }  // namespace museum
