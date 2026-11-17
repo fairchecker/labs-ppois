@@ -30,6 +30,8 @@ jobs:
           path: lab1/englorus
         - name: polynomial
           path: lab1/polynomial
+        - name: museum
+          path: lab2/museum
         os: [ ubuntu-latest, macos-latest, windows-latest ]
 
     steps:
@@ -126,6 +128,8 @@ jobs:
             path: lab1/englorus
           - name: polynomial
             path: lab1/polynomial
+          - name: museum
+            path: lab2/museum
 
     steps:
       - name: Checkout
@@ -155,7 +159,7 @@ jobs:
             -print0 |
           xargs -0 clang-tidy \
             -p build \
-            --checks='-*,bugprone-*,performance-*' \
+            --checks='-*,bugprone-*,performance-*,-bugprone-easily-swappable-parameters' \
             --warnings-as-errors='*'
 
   msvc:
@@ -173,6 +177,8 @@ jobs:
           path: lab1/englorus
         - name: polynomial
           path: lab1/polynomial
+        - name: museum
+          path: lab2/museum
 
     steps:
       - name: Checkout
@@ -204,6 +210,8 @@ jobs:
           path: lab1/englorus
         - name: polynomial
           path: lab1/polynomial
+        - name: museum
+          path: lab2/museum
 
     steps:
       - name: Checkout

@@ -34,9 +34,15 @@ jobs:
             -DCMAKE_BUILD_TYPE=Release
           cmake --build build/polynomial --parallel 2
 
+      - name: Build museum
+        run: |
+          cmake -S lab2/museum -B build/museum \
+            -DCMAKE_BUILD_TYPE=Release
+          cmake --build build/museum --parallel 2
+
       - name: Package executables
         run: |
-          mkdir -p dist/englorus dist/polynomial
+          mkdir -p dist/englorus dist/polynomial dist/museum
 
           find build/englorus -type f -executable \
             -not -path '*/CMakeFiles/*' \
@@ -45,6 +51,10 @@ jobs:
           find build/polynomial -type f -executable \
             -not -path '*/CMakeFiles/*' \
             -exec cp --parents {} dist/polynomial/ \;
+
+          find build/museum -type f -executable \
+            -not -path '*/CMakeFiles/*' \
+            -exec cp --parents {} dist/museum/ \;
 
           cd dist
           zip -r ../release-linux.zip .
