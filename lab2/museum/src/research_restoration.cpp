@@ -97,7 +97,7 @@ bool Publication::IsRecent(int currentYear) const {
 }
 
 double Publication::ImpactScore(int currentYear) const {
-    const int age = std::max(1, currentYear - year_);
+    const int age = std::max(kMinimumPublicationAge, currentYear - year_);
     return static_cast<double>(citations_) / static_cast<double>(age);
 }
 

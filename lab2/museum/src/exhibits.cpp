@@ -40,10 +40,10 @@ void Exhibit::AssessCondition(int score) {
 }
 
 void Exhibit::Depreciate(double percent) {
-    if (percent < 0.0 || percent > 100.0) {
+    if (percent < kPercentMin || percent > kPercentMax) {
         throw InvalidExhibitException("depreciation percent must be in [0, 100]");
     }
-    appraisedValue_ -= appraisedValue_ * percent / 100.0;
+    appraisedValue_ -= appraisedValue_ * percent / kPercentMax;
 }
 
 bool Exhibit::IsLoanable() const { return conditionScore_ >= kLoanableCondition; }
@@ -122,7 +122,7 @@ std::string Sculpture::Category() const { return "sculpture"; }
 
 double Sculpture::VolumeEstimate() const {
     constexpr double kFootprintSquareMetres = 0.25;
-    return heightCm_ / 100.0 * kFootprintSquareMetres;
+    return heightCm_ / kCentimetresPerMetre * kFootprintSquareMetres;
 }
 
 Manuscript::Manuscript(std::string id, std::string title, std::string epoch, int conditionScore,
@@ -170,7 +170,7 @@ Fossil::Fossil(std::string id, std::string title, std::string epoch, int conditi
 
 std::string Fossil::Category() const { return "fossil"; }
 
-bool Fossil::IsPrehistoric() const { return ageThousandYears_ > 10.0; }
+bool Fossil::IsPrehistoric() const { return ageThousandYears_ > kPrehistoricThousandYears; }
 
 std::string Fossil::EraDescription() const {
     return era_ + " era, " + std::to_string(ageThousandYears_) + " thousand years old";

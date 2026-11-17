@@ -21,6 +21,21 @@ namespace museum {
 
 namespace {
 
+constexpr double kDemoBudget = 100000.0;
+constexpr int kDemoTicketCapacity = 100;
+constexpr int kDemoTourCapacity = 2;
+constexpr double kDemoTourPrice = 100.0;
+constexpr int kDemoRestorationCapacity = 5;
+constexpr int kDemoFeedbackCapacity = 100;
+constexpr double kDemoMinStorageTemperature = 16.0;
+constexpr double kDemoMaxStorageTemperature = 24.0;
+constexpr int kDemoDepartmentCapacity = 10;
+constexpr int kDemoExhibitionStartDay = 1;
+constexpr int kDemoExhibitionEndDay = 30;
+constexpr double kDemoExhibitionPrice = 50.0;
+constexpr int kDemoDay = 1;
+constexpr double kRestorationHourlyRate = 25.0;
+
 /// Splits a line into whitespace-separated tokens.
 std::vector<std::string> Tokenize(const std::string& line) {
     std::istringstream stream(line);
@@ -87,31 +102,46 @@ Visitor& RequireVisitor(std::map<std::string, Visitor>& visitors, const std::str
 
 ConsoleApp::ConsoleApp()
     : museum_("City Museum", Address("Main St", "Minsk", "220000", "5"),
-              Budget(100000.0, "general")),
-      ticketOffice_(100),
-      tour_("tour1", "g1", "Highlights", 2, 100.0),
-      restorationLab_(5),
+              Budget(kDemoBudget, "general")),
+      ticketOffice_(kDemoTicketCapacity),
+      tour_("tour1", "g1", "Highlights", kDemoTourCapacity, kDemoTourPrice),
+      restorationLab_(kDemoRestorationCapacity),
       security_("1234"),
       alarm_("1234"),
-      feedbackBoard_(100),
-      climateLog_(16.0, 24.0) {
+      feedbackBoard_(kDemoFeedbackCapacity),
+      climateLog_(kDemoMinStorageTemperature, kDemoMaxStorageTemperature) {
     SeedDemoData();
 }
 
 void ConsoleApp::SeedDemoData() {
-    auto archaeology = std::make_shared<Department>("Archaeology", 1, "c1", 10);
+    SeedOrganization();
+    SeedEmployees();
+    SeedCollection();
+    SeedVisitorServices();
+}
+
+void ConsoleApp::SeedOrganization() {
+    auto archaeology = std::make_shared<Department>("Archaeology", 1, "c1",
+                                                    kDemoDepartmentCapacity);
     archaeology->AddExhibit("p1");
     archaeology->AddExhibit("f1");
     museum_.AddDepartment(archaeology);
-    museum_.AddDepartment(std::make_shared<Department>("Art", 2, "c1", 10));
+    museum_.AddDepartment(
+        std::make_shared<Department>("Art", 2, "c1", kDemoDepartmentCapacity));
+    museum_.OpenExhibition(Exhibition("ex1", "Ancient Worlds", kDemoExhibitionStartDay,
+                                     kDemoExhibitionEndDay, kDemoExhibitionPrice));
+}
 
+void ConsoleApp::SeedEmployees() {
     museum_.Hire(std::make_shared<Curator>("c1", "Ada Stone", 45, 1200.0, 2012, "Archaeology",
                                           "Prehistory"));
     museum_.Hire(std::make_shared<Guide>("g1", "Ivan Guide", 32, 800.0, 2019, "Education",
                                         std::vector<std::string>{"English", "Russian"}, 4.8));
     museum_.Hire(std::make_shared<Restorer>("r1", "Nina Restorer", 38, 900.0, 2016,
                                            "Restoration", "textiles"));
+}
 
+void ConsoleApp::SeedCollection() {
     museum_.AddExhibit(std::make_shared<Painting>("p1", "Morning Light", "Modern", 82, 5000.0,
                                                   3.0, "France", "Monet", "oil", 100.0, 50.0));
     museum_.AddExhibit(std::make_shared<Fossil>("f1", "Dinosaur Bone", "Jurassic", 68, 8000.0,
@@ -120,38 +150,51 @@ void ConsoleApp::SeedDemoData() {
                                                     2.0, "Italy", 320, "Latin", 1420));
     museum_.AddExhibit(std::make_shared<Jewelry>("j1", "Royal Brooch", "Modern", 90, 30000.0, 0.2,
                                                  "France", "diamond", 3.0, true));
+}
 
-    museum_.OpenExhibition(Exhibition("ex1", "Ancient Worlds", 1, 30, 50.0));
+void ConsoleApp::SeedVisitorServices() {
     visitors_.emplace("v1", Visitor("v1", "Peter Student", 20, "student", 200.0));
     visitors_.emplace("v2", Visitor("v2", "Anna Guest", 35, "full", 500.0));
     restorationLab_.AddMaterial(RestorationMaterial("Linen", 10.0, 3.0));
-    feedbackBoard_.Add(VisitorFeedback("v1", 5, "Wonderful collection", 1));
+    feedbackBoard_.Add(VisitorFeedback("v1", kMaxRating, "Wonderful collection", kDemoDay));
 }
 
 int ConsoleApp::Run(std::istream& in, std::ostream& out) {
     out << "Museum management console. Type 'help' for commands.\n";
     std::string line;
     while (std::getline(in, line)) {
-        const std::vector<std::string> tokens = Tokenize(line);
-        if (tokens.empty()) {
-            continue;
-        }
-        if (tokens[0] == "exit" || tokens[0] == "quit") {
-            out << "Goodbye.\n";
+        if (ProcessLine(line, out)) {
             return 0;
-        }
-        try {
-            if (!HandleCommand(tokens, out)) {
-                out << "Unknown command. Type 'help'.\n";
-            }
-        } catch (const MuseumException& error) {
-            out << "error: " << error.what() << '\n';
         }
     }
     return 0;
 }
 
+bool ConsoleApp::ProcessLine(const std::string& line, std::ostream& out) {
+    const std::vector<std::string> tokens = Tokenize(line);
+    if (tokens.empty()) {
+        return false;
+    }
+    if (tokens[0] == "exit" || tokens[0] == "quit") {
+        out << "Goodbye.\n";
+        return true;
+    }
+    try {
+        if (!HandleCommand(tokens, out)) {
+            out << "Unknown command. Type 'help'.\n";
+        }
+    } catch (const MuseumException& error) {
+        out << "error: " << error.what() << '\n';
+    }
+    return false;
+}
+
 bool ConsoleApp::HandleCommand(const std::vector<std::string>& tokens, std::ostream& out) {
+    return HandleReportCommand(tokens, out) || HandleVisitorCommand(tokens, out) ||
+           HandleFacilityCommand(tokens, out);
+}
+
+bool ConsoleApp::HandleReportCommand(const std::vector<std::string>& tokens, std::ostream& out) {
     const std::string& command = tokens[0];
     if (command == "help") {
         PrintHelp(out);
@@ -159,24 +202,40 @@ bool ConsoleApp::HandleCommand(const std::vector<std::string>& tokens, std::ostr
         PrintSummary(out);
     } else if (command == "exhibits") {
         PrintExhibits(out);
-    } else if (command == "ticket") {
+    } else if (command == "condition") {
+        HandleCondition(tokens, out);
+    } else if (command == "depreciate") {
+        HandleDepreciate(tokens, out);
+    } else {
+        return false;
+    }
+    return true;
+}
+
+bool ConsoleApp::HandleVisitorCommand(const std::vector<std::string>& tokens, std::ostream& out) {
+    const std::string& command = tokens[0];
+    if (command == "ticket") {
         HandleTicket(tokens, out);
     } else if (command == "tour") {
         HandleTour(tokens, out);
-    } else if (command == "restore") {
+    } else if (command == "feedback") {
+        HandleFeedback(tokens, out);
+    } else {
+        return false;
+    }
+    return true;
+}
+
+bool ConsoleApp::HandleFacilityCommand(const std::vector<std::string>& tokens, std::ostream& out) {
+    const std::string& command = tokens[0];
+    if (command == "restore") {
         HandleRestore(tokens, out);
     } else if (command == "donate") {
         HandleDonate(tokens, out);
     } else if (command == "alarm") {
         HandleAlarm(tokens, out);
-    } else if (command == "feedback") {
-        HandleFeedback(tokens, out);
     } else if (command == "climate") {
         HandleClimate(tokens, out);
-    } else if (command == "condition") {
-        HandleCondition(tokens, out);
-    } else if (command == "depreciate") {
-        HandleDepreciate(tokens, out);
     } else {
         return false;
     }
@@ -227,7 +286,7 @@ void ConsoleApp::HandleTicket(const std::vector<std::string>& tokens, std::ostre
     }
     Visitor& visitor = RequireVisitor(visitors_, tokens[1]);
     const double price = ParseDouble(tokens[2]);
-    const Ticket ticket = ticketOffice_.SellTicket(visitor, visitor.TicketType(), price, 1);
+    const Ticket ticket = ticketOffice_.SellTicket(visitor, visitor.TicketType(), price, kDemoDay);
     out << "ticket " << ticket.Id() << " for " << visitor.FullName() << " costs "
         << ticket.Price() << '\n';
 }
@@ -251,7 +310,7 @@ void ConsoleApp::HandleRestore(const std::vector<std::string>& tokens, std::ostr
         throw ExhibitNotFoundException("unknown exhibit: " + tokens[1]);
     }
     const double hours = ParseDouble(tokens[2]);
-    RestorationTask task("task-" + tokens[1], tokens[1], "r1", 25.0);
+    RestorationTask task("task-" + tokens[1], tokens[1], "r1", kRestorationHourlyRate);
     task.Start();
     task.AddHours(hours);
     task.Complete();
@@ -296,7 +355,7 @@ void ConsoleApp::HandleFeedback(const std::vector<std::string>& tokens, std::ost
         throw MuseumException("usage: feedback <rating> <comment...>");
     }
     const int rating = ParseInt(tokens[1]);
-    feedbackBoard_.Add(VisitorFeedback("v1", rating, JoinFrom(tokens, 2), 1));
+    feedbackBoard_.Add(VisitorFeedback("v1", rating, JoinFrom(tokens, 2), kDemoDay));
     out << "feedback recorded, average rating " << feedbackBoard_.AverageRating() << '\n';
 }
 
@@ -320,7 +379,7 @@ void ConsoleApp::HandleCondition(const std::vector<std::string>& tokens, std::os
     }
     const int score = ParseInt(tokens[2]);
     exhibit->AssessCondition(score);
-    const ConditionReport report(tokens[1], score, "console assessment", 1);
+    const ConditionReport report(tokens[1], score, "console assessment", kDemoDay);
     out << exhibit->Title() << " condition " << score << ": " << report.Recommendation() << '\n';
 }
 

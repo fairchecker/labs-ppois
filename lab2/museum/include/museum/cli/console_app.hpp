@@ -46,6 +46,18 @@ class ConsoleApp {
     /// Builds the demo museum used by the console.
     void SeedDemoData();
 
+    /// Creates the demo departments and exhibition.
+    void SeedOrganization();
+
+    /// Hires the demo employees.
+    void SeedEmployees();
+
+    /// Adds the demo exhibits and collection.
+    void SeedCollection();
+
+    /// Creates demo visitors and facility state.
+    void SeedVisitorServices();
+
     /// Prints the command reference.
     void PrintHelp(std::ostream& out) const;
 
@@ -56,10 +68,25 @@ class ConsoleApp {
     void PrintExhibits(std::ostream& out) const;
 
     /**
+     * @brief Processes one input line.
+     * @return true when the line asks to leave the console.
+     */
+    bool ProcessLine(const std::string& line, std::ostream& out);
+
+    /**
      * @brief Dispatches one command.
      * @return true when the command is known.
      */
     bool HandleCommand(const std::vector<std::string>& tokens, std::ostream& out);
+
+    /// Handles reporting and collection commands.
+    bool HandleReportCommand(const std::vector<std::string>& tokens, std::ostream& out);
+
+    /// Handles ticketing, tour and feedback commands.
+    bool HandleVisitorCommand(const std::vector<std::string>& tokens, std::ostream& out);
+
+    /// Handles restoration, donation, alarm and climate commands.
+    bool HandleFacilityCommand(const std::vector<std::string>& tokens, std::ostream& out);
 
     /// Handles `ticket <visitorId> <price>`.
     void HandleTicket(const std::vector<std::string>& tokens, std::ostream& out);

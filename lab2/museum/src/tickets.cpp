@@ -3,6 +3,7 @@
 #include <algorithm>
 #include <utility>
 
+#include "museum/constants.hpp"
 #include "museum/event.hpp"
 #include "museum/exceptions.hpp"
 #include "museum/exhibit.hpp"
@@ -67,10 +68,10 @@ Ticket::Ticket(std::string id, std::string visitorId, std::string type, double p
 }
 
 double Ticket::ApplyDiscount(double percent) {
-    if (percent < 0.0 || percent > 100.0) {
+    if (percent < kPercentMin || percent > kPercentMax) {
         throw InvalidTicketException("discount percent must be in [0, 100]");
     }
-    price_ -= price_ * percent / 100.0;
+    price_ -= price_ * percent / kPercentMax;
     return price_;
 }
 

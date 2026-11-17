@@ -139,7 +139,7 @@ AudioGuide::AudioGuide(std::string id, std::string language, int batteryPercent)
     if (id_.empty() || language_.empty()) {
         throw BookingException("audio guide id and language must not be empty");
     }
-    if (batteryPercent_ < 0 || batteryPercent_ > 100) {
+    if (batteryPercent_ < kMinBatteryPercent || batteryPercent_ > kMaxBatteryPercent) {
         throw BookingException("audio guide battery must be in [0, 100]");
     }
 }
