@@ -43,10 +43,10 @@ Employee::Employee(std::string id, std::string fullName, int age, double monthly
 double Employee::AnnualSalary() const { return monthlySalary_ * 12.0; }
 
 void Employee::Promote(double percent) {
-    if (percent <= 0.0 || percent > kMaxPromotionPercent) {
+    if (percent <= kPercentMin || percent > kMaxPromotionPercent) {
         throw InvalidPersonException("promotion percent must be in (0, 50]");
     }
-    monthlySalary_ += monthlySalary_ * percent / 100.0;
+    monthlySalary_ += monthlySalary_ * percent / kPercentMax;
 }
 
 bool Employee::IsSenior(int currentYear) const { return currentYear - hiredYear_ >= kSeniorYears; }

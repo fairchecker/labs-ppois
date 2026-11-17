@@ -29,6 +29,16 @@ inline constexpr int kMinRating = 1;
 inline constexpr int kMaxRating = 5;
 /// Donations at or above this amount are considered large.
 inline constexpr double kLargeDonation = 10000.0;
+/// Lowest percentage accepted by percentage-based operations.
+inline constexpr double kPercentMin = 0.0;
+/// Highest percentage accepted by percentage-based operations.
+inline constexpr double kPercentMax = 100.0;
+/// Centimetres in one metre.
+inline constexpr double kCentimetresPerMetre = 100.0;
+/// Age in thousands of years above which a fossil is prehistoric.
+inline constexpr double kPrehistoricThousandYears = 10.0;
+/// Minimum publication age used to avoid division by zero.
+inline constexpr int kMinimumPublicationAge = 1;
 /// Stock level at or below which a shop item is considered low.
 inline constexpr int kLowStockLevel = 5;
 /// Default discount for members of the first level.
@@ -73,6 +83,10 @@ inline constexpr int kRareManuscriptYear = 1600;
 inline constexpr int kRareManuscriptPages = 500;
 /// Minimum battery percentage required to rent an audio guide.
 inline constexpr int kMinAudioGuideBattery = 10;
+/// Lowest valid battery percentage.
+inline constexpr int kMinBatteryPercent = 0;
+/// Highest valid battery percentage.
+inline constexpr int kMaxBatteryPercent = 100;
 /// Minutes of charging that restore one battery percent.
 inline constexpr int kMinutesPerBatteryPercent = 2;
 /// Years within which a publication is considered recent.
