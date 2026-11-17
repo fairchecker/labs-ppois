@@ -22,6 +22,12 @@ class InvalidPersonException : public MuseumException {
     explicit InvalidPersonException(const std::string& message) : MuseumException(message) {}
 };
 
+/// Thrown when an address record is malformed.
+class InvalidAddressException : public MuseumException {
+    public:
+    explicit InvalidAddressException(const std::string& message) : MuseumException(message) {}
+};
+
 /// Thrown when a membership record is malformed.
 class InvalidMembershipException : public MuseumException {
     public:
