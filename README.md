@@ -7,6 +7,7 @@ Laboratory assignments for the **PPOIS** course at BSUIR.
 - **Englorus** — Laboratory assignment 1.
 - **Polynomial** — Laboratory assignment 1.
 - **Museum** — Laboratory assignment 2.
+- **Logistics** — Laboratory assignment 3.
 
 ## Build
 

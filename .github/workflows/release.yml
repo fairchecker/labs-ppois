@@ -40,9 +40,15 @@ jobs:
             -DCMAKE_BUILD_TYPE=Release
           cmake --build build/museum --parallel 2
 
+      - name: Build logistics
+        run: |
+          cmake -S lab3/logistics -B build/logistics \
+            -DCMAKE_BUILD_TYPE=Release
+          cmake --build build/logistics --parallel 2
+
       - name: Package executables
         run: |
-          mkdir -p dist/englorus dist/polynomial dist/museum
+          mkdir -p dist/englorus dist/polynomial dist/museum dist/logistics
 
           find build/englorus -type f -executable \
             -not -path '*/CMakeFiles/*' \
@@ -55,6 +61,10 @@ jobs:
           find build/museum -type f -executable \
             -not -path '*/CMakeFiles/*' \
             -exec cp --parents {} dist/museum/ \;
+
+          find build/logistics -type f -executable \
+            -not -path '*/CMakeFiles/*' \
+            -exec cp --parents {} dist/logistics/ \;
 
           cd dist
           zip -r ../release-linux.zip .
