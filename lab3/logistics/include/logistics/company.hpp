@@ -201,6 +201,8 @@ class TransportCompany {
     std::size_t InvoiceCount() const { return invoices_.size(); }
 
     private:
+    void ValidateDispatch(const Order& order, const Vehicle& vehicle, const Driver& driver,
+                          const std::string& licenseCategory, int day) const;
     Invoice* FindInvoice(const std::string& invoiceId);
     Shipment* FindShipment(const std::string& shipmentId);
     std::size_t CountPaidInvoices() const;

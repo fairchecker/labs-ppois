@@ -8,7 +8,6 @@
 namespace logistics {
 namespace {
 
-constexpr double kKilogramsPerUnit = 1.0;
 constexpr int kMinHazardClass = 1;
 constexpr int kMaxHazardClass = 9;
 constexpr int kExplosiveHazardClass = 1;

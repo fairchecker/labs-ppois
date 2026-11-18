@@ -34,8 +34,19 @@ class ConsoleApp {
 
     private:
     void Seed();
+    void SeedNetwork();
+    void SeedCommercial();
     void DispatchCommand(const std::string& command, std::istringstream& arguments,
                          std::ostream& output);
+    bool DispatchOverviewCommand(const std::string& command, std::ostream& output) const;
+    bool DispatchRegistrationCommand(const std::string& command, std::istringstream& arguments,
+                                     std::ostream& output);
+    bool DispatchOperationsCommand(const std::string& command, std::istringstream& arguments,
+                                   std::ostream& output);
+    bool DispatchOrderCommand(const std::string& command, std::istringstream& arguments,
+                              std::ostream& output);
+    bool DispatchDeliveryCommand(const std::string& command, std::istringstream& arguments,
+                                 std::ostream& output);
     void PrintHelp(std::ostream& output) const;
     void PrintSummary(std::ostream& output) const;
     void PrintClients(std::ostream& output) const;
@@ -63,6 +74,10 @@ class ConsoleApp {
     void PrintReport(std::ostream& output) const;
     Driver* FindDriver(const std::string& driverId);
     Route* FindRoute(const std::string& routeId);
+    Order& RequireOrder(const std::string& orderId);
+    Vehicle& RequireVehicle(const std::string& vehicleId);
+    Driver& RequireDriver(const std::string& driverId);
+    Route& RequireRoute(const std::string& routeId);
 
     TransportCompany company_;
     std::vector<Driver> drivers_;

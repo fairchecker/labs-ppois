@@ -90,9 +90,9 @@ double TransportCompany::Quote(const std::string& cargoType, double distanceKm, 
     return pricing_.Quote(cargoType, distanceKm, weightKg, volumeM3);
 }
 
-Shipment& TransportCompany::Dispatch(Order& order, Vehicle& vehicle, Driver& driver,
-                                     const std::string& licenseCategory, const std::string& routeId,
-                                     int day) {
+void TransportCompany::ValidateDispatch(const Order& order, const Vehicle& vehicle,
+                                        const Driver& driver, const std::string& licenseCategory,
+                                        int day) const {
     if (order.Status() != OrderStatus::Confirmed) {
         throw InvalidOrderException("Only a confirmed order can be dispatched");
     }
@@ -105,6 +105,12 @@ Shipment& TransportCompany::Dispatch(Order& order, Vehicle& vehicle, Driver& dri
     if (day < 0) {
         throw InvalidShipmentException("Dispatch day cannot be negative");
     }
+}
+
+Shipment& TransportCompany::Dispatch(Order& order, Vehicle& vehicle, Driver& driver,
+                                     const std::string& licenseCategory, const std::string& routeId,
+                                     int day) {
+    ValidateDispatch(order, vehicle, driver, licenseCategory, day);
     Shipment shipment(MakeShipmentId(shipments_.size()), order.Id(), vehicle.Id(), driver.Id(),
                       routeId);
     order.StartTransit();

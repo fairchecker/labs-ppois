@@ -25,7 +25,6 @@ constexpr double kSeedSalary = 2500.0;
 constexpr int kLicenseIssuedDay = 0;
 constexpr int kLicenseValidityDays = 3650;
 constexpr int kReportPrecision = 2;
-constexpr int kStandardPriorityCode = 0;
 constexpr int kExpressPriorityCode = 1;
 constexpr int kCriticalPriorityCode = 2;
 const char* const kDefaultPhone = "+375 29 000-00-00";
@@ -89,32 +88,43 @@ OrderPriority ParsePriority(int code) {
     return OrderPriority::Standard;
 }
 
+Driver MakeSeedDriver(const std::string& id, const std::string& name, const std::string& license,
+                      const std::string& category, int experience, double rating) {
+    return Driver(id, name, kDefaultPhone, id + kEmailDomain, "EMP-" + id, kSeedHiredYear,
+                  kSeedSalary, DrivingLicense(license, category, kLicenseIssuedDay,
+                                              kLicenseValidityDays),
+                  experience, rating);
+}
+
 }  // namespace
 
 ConsoleApp::ConsoleApp() : company_("TransLogistics", 10000.0) { Seed(); }
 
 void ConsoleApp::Seed() {
+    SeedNetwork();
+    SeedCommercial();
+}
+
+void ConsoleApp::SeedNetwork() {
     company_.OnboardClient(Client("C1", "Acme Retail", "Olga Petrova", 2000.0, 5000.0, 4.5));
     company_.OnboardClient(Client("C2", "Fresh Market", "Ivan Sidorov", 1000.0, 1200.0, 3.8));
     const Address depot = MakeAddress("Minsk", kSeedLatitude, kSeedLongitude);
-    const Address brest = MakeAddress("Brest", kBrestLatitude, kBrestLongitude);
-    const Address warsaw = MakeAddress("Warsaw", kWarsawLatitude, kWarsawLongitude);
     company_.AddWarehouse(Warehouse("W1", "Central Hub", depot, 50000.0, 1200.0));
     company_.RegisterVehicle(std::make_unique<Truck>("T1", "AB1234-7", 20000.0, 80.0,
                                                      kSeedOdometerKm, kSeedFuelLiters, 3, 25000.0));
     company_.RegisterVehicle(std::make_unique<Van>("V1", "AC5678-2", 1500.0, 12.0, kSeedOdometerKm,
                                                    kSeedFuelLiters, true, 120));
-    drivers_.emplace_back("D1", "Pavel Ivanov", kDefaultPhone, "pavel" + std::string(kEmailDomain),
-                          "EMP-D1", kSeedHiredYear, kSeedSalary,
-                          DrivingLicense("LIC-D1", "C", kLicenseIssuedDay, kLicenseValidityDays), 8,
-                          4.7);
-    drivers_.emplace_back("D2", "Anna Smirnova", kDefaultPhone, "anna" + std::string(kEmailDomain),
-                          "EMP-D2", kSeedHiredYear, kSeedSalary,
-                          DrivingLicense("LIC-D2", "B", kLicenseIssuedDay, kLicenseValidityDays), 4,
-                          4.9);
+    drivers_.push_back(MakeSeedDriver("D1", "Pavel Ivanov", "LIC-D1", "C", 8, 4.7));
+    drivers_.push_back(MakeSeedDriver("D2", "Anna Smirnova", "LIC-D2", "B", 4, 4.9));
     company_.AddTariff(Tariff("TR1", "general", 1.2, 50.0, 0.05, 8.0));
     company_.AddTariff(Tariff("TR2", "perishable", 1.8, 80.0, 0.04, 12.0));
     company_.AddTariff(Tariff("TR3", "fragile", 1.5, 60.0, 0.06, 10.0));
+}
+
+void ConsoleApp::SeedCommercial() {
+    const Address depot = MakeAddress("Minsk", kSeedLatitude, kSeedLongitude);
+    const Address brest = MakeAddress("Brest", kBrestLatitude, kBrestLongitude);
+    const Address warsaw = MakeAddress("Warsaw", kWarsawLatitude, kWarsawLongitude);
     Route route("R1", 1.2);
     route.AddSegment(RouteSegment(depot, brest, 350.0, "highway", 20.0));
     route.AddSegment(RouteSegment(brest, warsaw, 210.0, "highway", 15.0));
@@ -147,6 +157,19 @@ int ConsoleApp::Run(std::istream& input, std::ostream& output) {
 
 void ConsoleApp::DispatchCommand(const std::string& command, std::istringstream& arguments,
                                  std::ostream& output) {
+    if (DispatchOverviewCommand(command, output)) {
+        return;
+    }
+    if (DispatchRegistrationCommand(command, arguments, output)) {
+        return;
+    }
+    if (DispatchOperationsCommand(command, arguments, output)) {
+        return;
+    }
+    output << "unknown command: " << command << '\n';
+}
+
+bool ConsoleApp::DispatchOverviewCommand(const std::string& command, std::ostream& output) const {
     if (command == "help") {
         PrintHelp(output);
     } else if (command == "summary") {
@@ -161,7 +184,18 @@ void ConsoleApp::DispatchCommand(const std::string& command, std::istringstream&
         PrintDrivers(output);
     } else if (command == "orders") {
         PrintOrders(output);
-    } else if (command == "client") {
+    } else if (command == "report") {
+        PrintReport(output);
+    } else {
+        return false;
+    }
+    return true;
+}
+
+bool ConsoleApp::DispatchRegistrationCommand(const std::string& command,
+                                             std::istringstream& arguments,
+                                             std::ostream& output) {
+    if (command == "client") {
         AddClient(arguments, output);
     } else if (command == "warehouse") {
         AddWarehouse(arguments, output);
@@ -175,7 +209,24 @@ void ConsoleApp::DispatchCommand(const std::string& command, std::istringstream&
         AddDriver(arguments, output);
     } else if (command == "order") {
         AddOrder(arguments, output);
-    } else if (command == "confirm") {
+    } else {
+        return false;
+    }
+    return true;
+}
+
+bool ConsoleApp::DispatchOperationsCommand(const std::string& command,
+                                           std::istringstream& arguments,
+                                           std::ostream& output) {
+    if (DispatchOrderCommand(command, arguments, output)) {
+        return true;
+    }
+    return DispatchDeliveryCommand(command, arguments, output);
+}
+
+bool ConsoleApp::DispatchOrderCommand(const std::string& command, std::istringstream& arguments,
+                                      std::ostream& output) {
+    if (command == "confirm") {
         ConfirmOrder(arguments, output);
     } else if (command == "cancel") {
         CancelOrder(arguments, output);
@@ -183,7 +234,16 @@ void ConsoleApp::DispatchCommand(const std::string& command, std::istringstream&
         RetireVehicle(arguments, output);
     } else if (command == "quote") {
         QuoteShipment(arguments, output);
-    } else if (command == "dispatch") {
+    } else {
+        return false;
+    }
+    return true;
+}
+
+bool ConsoleApp::DispatchDeliveryCommand(const std::string& command,
+                                         std::istringstream& arguments,
+                                         std::ostream& output) {
+    if (command == "dispatch") {
         DispatchShipment(arguments, output);
     } else if (command == "deliver") {
         DeliverShipment(arguments, output);
@@ -195,11 +255,10 @@ void ConsoleApp::DispatchCommand(const std::string& command, std::istringstream&
         RecordTracking(arguments, output);
     } else if (command == "tracking") {
         ShowTracking(arguments, output);
-    } else if (command == "report") {
-        PrintReport(output);
     } else {
-        output << "unknown command: " << command << '\n';
+        return false;
     }
+    return true;
 }
 
 void ConsoleApp::PrintHelp(std::ostream& output) const {
@@ -435,22 +494,11 @@ void ConsoleApp::DispatchShipment(std::istringstream& arguments, std::ostream& o
         output << "usage: dispatch <order> <vehicle> <driver> <category> <route> <day>\n";
         return;
     }
-    Order* order = company_.Orders().Find(orderId);
-    if (order == nullptr) {
-        throw OrderNotFoundException("Order not found: " + orderId);
-    }
-    Vehicle* vehicle = company_.Fleet().FindVehicle(vehicleId);
-    if (vehicle == nullptr) {
-        throw InvalidVehicleException("Vehicle not found: " + vehicleId);
-    }
-    Driver* driver = FindDriver(driverId);
-    if (driver == nullptr) {
-        throw InvalidClientException("Driver not found: " + driverId);
-    }
-    if (FindRoute(routeId) == nullptr) {
-        throw InvalidRouteException("Route not found: " + routeId);
-    }
-    const Shipment& shipment = company_.Dispatch(*order, *vehicle, *driver, category, routeId, day);
+    Order& order = RequireOrder(orderId);
+    Vehicle& vehicle = RequireVehicle(vehicleId);
+    Driver& driver = RequireDriver(driverId);
+    RequireRoute(routeId);
+    const Shipment& shipment = company_.Dispatch(order, vehicle, driver, category, routeId, day);
     output << "shipment created: " << shipment.Id() << '\n';
 }
 
@@ -538,6 +586,38 @@ Route* ConsoleApp::FindRoute(const std::string& routeId) {
         }
     }
     return nullptr;
+}
+
+Order& ConsoleApp::RequireOrder(const std::string& orderId) {
+    Order* order = company_.Orders().Find(orderId);
+    if (order == nullptr) {
+        throw OrderNotFoundException("Order not found: " + orderId);
+    }
+    return *order;
+}
+
+Vehicle& ConsoleApp::RequireVehicle(const std::string& vehicleId) {
+    Vehicle* vehicle = company_.Fleet().FindVehicle(vehicleId);
+    if (vehicle == nullptr) {
+        throw InvalidVehicleException("Vehicle not found: " + vehicleId);
+    }
+    return *vehicle;
+}
+
+Driver& ConsoleApp::RequireDriver(const std::string& driverId) {
+    Driver* driver = FindDriver(driverId);
+    if (driver == nullptr) {
+        throw InvalidClientException("Driver not found: " + driverId);
+    }
+    return *driver;
+}
+
+Route& ConsoleApp::RequireRoute(const std::string& routeId) {
+    Route* route = FindRoute(routeId);
+    if (route == nullptr) {
+        throw InvalidRouteException("Route not found: " + routeId);
+    }
+    return *route;
 }
 
 }  // namespace logistics
